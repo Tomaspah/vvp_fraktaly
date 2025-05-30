@@ -3,9 +3,23 @@ import matplotlib.pyplot as plt
 import numba
 from ipywidgets import interact, IntSlider, ToggleButtons, FloatSlider
 
-# Funkce pro vypocet Juliovy mnoziny
 @numba.njit(parallel=True)
-def julia_set(c_real=-0.7, c_imag=0.27, x_min=-2.0, x_max=2.0, y_min=-2.0, y_max=2.0, n=1000, k=200, x=0.0, y=0.0, zoom=1.0):
+def julia_set(c_real: float=-0.7, c_imag: float=0.27, x_min: float=-2.0, x_max: float=2.0, y_min: float=-2.0, y_max: float=2.0, n: int=1000, k: int=200, x: float=0.0, y: float=0.0, zoom: float=1.0) -> np.ndarray:
+    """
+    Vypocet Juliovy mnoziny.
+
+    Parametry:
+        c_real, c_imag (float): Realna a imaginarni cast komplexniho cisla c.
+        x_min, x_max (float): Rozsah realne osy (x).
+        y_min, y_max (float): Rozsah imaginarni osy (y).
+        n (int): Rozliseni obrazu (pocet bodu na kazde ose).
+        k (int): Maximalni pocet iteraci pro kontrolu divergence.
+        x, y (float): Posun obrazu v realne a imaginarni ose.
+        zoom (float): Faktor priblizeni obrazu (1.0 = bez priblizeni).
+
+    Vracena hodnota:
+        ndarray: Matice s hodnotami iteraci do divergence pro kazdy bod v rovine.
+    """
     
     scale = 1.0 / zoom
     x_min *= scale
@@ -36,8 +50,17 @@ def julia_set(c_real=-0.7, c_imag=0.27, x_min=-2.0, x_max=2.0, y_min=-2.0, y_max
                     
     return divergence_matrix
 
-# Funkce pro vykresleni Juliovy mnoziny
-def plot_julia(n=1000, k=200, c_real=-0.7, c_imag=0.27015, cmap='hot', x=0, y=0, zoom=1.0):
+def plot_julia(c_real: float=-0.7, c_imag: float=0.27015, n: int=1000, k: int=200, cmap: str='hot', x: float=0, y: float=0, zoom: float=1.0):
+    """Vykresleni Juliovy mnoziny.
+
+    Parametry:
+        c_real, c_imag (float): Realna a imaginarni cast komplexniho cisla c.
+        n (int): Rozliseni obrazu (pocet bodu na kazde ose).
+        k (int): Maximalni pocet iteraci pro kontrolu divergence.
+        cmap (str): Nazev barevne mapy pro vykresleni.
+        x, y (float): Posun obrazu v realne a imaginarni ose.
+        zoom (float): Faktor priblizeni obrazu (1.0 = bez priblizeni).
+    """
     data = julia_set(n=n, k=k, c_real=c_real, c_imag=c_imag, x=x, y=y, zoom=zoom)
     plt.figure(figsize=(9, 8))
     plt.imshow(data.T, cmap=cmap, origin='lower', extent=[-2.0, 2.0, -2.0, 2.0])
@@ -45,8 +68,11 @@ def plot_julia(n=1000, k=200, c_real=-0.7, c_imag=0.27015, cmap='hot', x=0, y=0,
     plt.title(f'Juliova množina (k={k}, n={n})')
     plt.show()
 
-# Funkce pro vygenerovani interaktivniho widgetu
 def interactive_julia():
+    """
+    Vytvoreni interaktivniho widgetu pro Juliovu mnozinu.
+    Umozni uzivateli menit parametry jako hodnoty komplexniho cisla c, rozliseni, pocet iteraci, barevnou mapu, posun a priblizeni.
+    """
     interact(plot_julia,
             n=IntSlider(min=50, max=2500, step=50, value=1000, description='Rozlišení'),
             k=IntSlider(min=5, max=500, step=5, value=200, description='Iterace'),

@@ -3,9 +3,23 @@ import matplotlib.pyplot as plt
 import numba
 from ipywidgets import interact, IntSlider, ToggleButtons, FloatSlider
 
-# Funkce pro vypocet Mandelbrotovy mnoziny
 @numba.njit(parallel=True)
-def mandelbrot_set(x_min=-2.0, x_max=1.0, y_min=-1.5, y_max=1.5, n=500, k=100, x=0, y=0, zoom=1.0):
+def mandelbrot_set(x_min: float=-2.0, x_max: float=1.0, y_min: float=-1.5, y_max: float=1.5, n: int=500, k: int=100, x: float=0, y: float=0, zoom: float=1.0) -> np.ndarray:
+    """
+    Vypocet Mandelbrotovy mnoziny.
+
+    Parametry:
+        x_min, x_max (float): Rozsah realne osy (x).
+        y_min, y_max (float): Rozsah imaginarni osy (y).
+        n (int): Rozliseni obrazu (pocet bodu na kazde ose).
+        k (int): Maximalni pocet iteraci pro kontrolu divergence.
+        x, y (float): Posun obrazu v realne a imaginarni ose.
+        zoom (float): Faktor priblizeni obrazu (1.0 = bez priblizeni).
+
+    Vracena hodnota:
+        ndarray: Matice s hodnotami iteraci do divergence pro kazdy bod v rovine.
+    """
+    
     # Nastaveni rozsahu a rozliseni
     scale = 1.0 / zoom
     x_min *= scale
@@ -34,8 +48,17 @@ def mandelbrot_set(x_min=-2.0, x_max=1.0, y_min=-1.5, y_max=1.5, n=500, k=100, x
                     
     return divergence_matrix
 
-# Funkce pro vykresleni Mandelbrotovy mnoziny
-def plot_mandelbrot(n=500, k=100, cmap='hot', x=0, y=0, zoom=1.0):
+def plot_mandelbrot(n: int=500, k: int=100, cmap: str='hot', x: float=0, y: float=0, zoom: float=1.0):
+    """
+    Vykresleni Mandelbrotovy mnoziny.
+
+    Parametry:
+        n (int): Rozliseni obrazu (pocet bodu na kazde ose).
+        k (int): Maximalni pocet iteraci pro kontrolu divergence.
+        cmap (str): Nazev barevne mapy pro vykresleni.
+        x, y (float): Posun obrazu v realne a imaginarni ose.
+        zoom (float): Faktor priblizeni obrazu (1.0 = bez priblizeni).
+    """
     data = mandelbrot_set(n=n, k=k, x=x, y=y, zoom=zoom)
     plt.figure(figsize=(9, 8))
     plt.imshow(data.T, cmap=cmap, origin='lower', extent=[-2.0, 1.0, -1.5, 1.5])
@@ -43,8 +66,11 @@ def plot_mandelbrot(n=500, k=100, cmap='hot', x=0, y=0, zoom=1.0):
     plt.title(f'Mandelbrotova množina (k={k}, n={n})')
     plt.show()
 
-# Funkce pro vygenerovani interaktivniho widgetu
 def interactive_mandelbrot():
+    """
+    Vytvori interaktivni widget pro vykresleni Mandelbrotovy mnoziny.
+    Umozni uzivateli menit parametry jako rozliseni, pocet iteraci, barevnou mapu, posun a priblizeni.
+    """
     interact(plot_mandelbrot,
          n=IntSlider(min=50, max=2500, step=50, value=500, description='Rozlišení'),
          k=IntSlider(min=5, max=500, step=5, value=100, description='Iterace'),
@@ -54,8 +80,18 @@ def interactive_mandelbrot():
          zoom=FloatSlider(min=1.0, max=50.0, step=0.5, value=1.0, description='Priblížení'));
 
 
-# Funkce pro vygenerovani Mandelbrotovy mnoziny bez Numba
-def old_mandelbrot_set(x_min = -2, x_max = 1, y_min = -1.5, y_max = 1.5, n = 1000, k = 100):
+def old_mandelbrot_set(x_min: float=-2, x_max: float=1, y_min: float=-1.5, y_max: float=1.5, n: int=1000, k: int=100) -> np.ndarray:
+    """
+    Vypocet Mandelbrotovy mnoziny bez pouziti Numba.
+
+    Parametry:
+        x_min, x_max (float): Rozsah realne osy (x).
+        y_min, y_max (float): Rozsah imaginarni osy (y).
+        n (int): Rozliseni obrazu (pocet bodu na kazde ose).
+        k (int): Maximalni pocet iteraci pro kontrolu divergence.
+    Vracena hodnota:
+        ndarray: Matice s hodnotami iteraci do divergence pro kazdy bod v rovine.
+    """
     re, im = np.mgrid[x_min:x_max:n*1j, y_min:y_max:n*1j]
     c = re + 1j * im
 
